@@ -8,17 +8,20 @@ const {
   RPC_URL,
   PRIVATE_KEYS,
   ROUTER_ADDRESS,
-  AMOUNT_TO_SWAP,
-  SWAP_COUNT,
-  DELAY_MS,
   ROUTES
 } = process.env;
+
+const args = process.argv.slice(2); // ambil argumen dari terminal
+const AMOUNT_TO_SWAP = args[0] || "0.003";       // default: 0.003
+const SWAP_COUNT = Number(args[1]) || 2;         // default: 2 swap
+const DELAY_MS = Number(args[2]) || 3000;        // default: 3 detik
+
+console.log(`⚙️  AMOUNT: ${AMOUNT_TO_SWAP} | COUNT: ${SWAP_COUNT} | DELAY: ${DELAY_MS}ms`);
 
 const provider = new ethers.providers.JsonRpcProvider(RPC_URL);
 const privateKeys = PRIVATE_KEYS.split(",");
 const routePairs = ROUTES.split(",").map(pair => pair.split(">"));
 
-// ABIs
 const ROUTER_ABI = [
   "function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external returns (uint[] memory)",
 ];
@@ -62,7 +65,7 @@ async function performSwap(wallet, router, tokenIn, tokenOut) {
       deadline,
       { gasLimit: 300000 }
     );
-    console.log(`🔁 [${wallet.address}] Swap ${AMOUNT_TO_SWAP} ${path[0]} sent: ${tx.hash}`);
+    console.log(`🔁 [${wallet.address}] Swap ${AMOUNT_TO_SWAP} sent: ${tx.hash}`);
     const receipt = await tx.wait();
     console.log(`✅ Swap sukses di blok ${receipt.blockNumber}`);
   } catch (err) {
@@ -80,10 +83,10 @@ async function main() {
       const tokenIn = new ethers.Contract(tokenInAddr, ERC20_ABI, wallet);
       const tokenOut = new ethers.Contract(tokenOutAddr, ERC20_ABI, wallet);
 
-      for (let i = 0; i < Number(SWAP_COUNT); i++) {
+      for (let i = 0; i < SWAP_COUNT; i++) {
         console.log(`\n🚀 Swap ${tokenInAddr} ➝ ${tokenOutAddr} ke-${i + 1}`);
         await performSwap(wallet, router, tokenIn, tokenOut);
-        await delay(Number(DELAY_MS));
+        await delay(DELAY_MS);
       }
     }
   }
