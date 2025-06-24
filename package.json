@@ -1,0 +1,14 @@
+{
+  "name": "megaeth-swapper",
+  "version": "1.0.0",
+  "description": "Multi-token swap di jaringan MegaETH Testnet",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "ethers": "^5.7.2"
+  }
+}
